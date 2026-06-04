@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="{{ .Site.Language.Locale }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="{{ with .Description }}{{ . }}{{ else }}{{ .Site.Params.name }} - {{ .Site.Params.institution }}{{ end }}">
+  <title>{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }} | {{ .Site.Params.name }}{{ end }}</title>
+  <link rel="stylesheet" href="{{ "css/main.css" | relURL }}">
+  <script src="{{ "js/clock.js" | relURL }}" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="{{ .Site.Home.RelPermalink }}">
+        <span class="brand-name">{{ .Site.Params.name }}</span>
+        <span class="brand-role">{{ .Site.Params.title }}</span>
+      </a>
+      <nav class="main-nav" aria-label="主导航">
+        {{ range .Site.Menus.main }}
+        <a href="{{ .URL | relURL }}">{{ .Name }}</a>
+        {{ end }}
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    {{ block "main" . }}{{ end }}
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-identity">
+      <strong>{{ .Site.Params.name }}</strong>
+      <span>{{ .Site.Params.institution }}</span>
+    </div>
+    <nav aria-label="页脚联系方式">
+      <a href="mailto:{{ .Site.Params.email }}">{{ .Site.Params.email }}</a>
+      <span>办公电话：{{ .Site.Params.officePhone }}</span>
+      <span>学院电话：{{ .Site.Params.collegePhone }}</span>
+      <a href="{{ .Site.Params.googleScholar }}">Google Scholar</a>
+      <a href="{{ .Site.Params.homepage }}">Github</a>
+      <a href="{{ .Site.Params.universityProfile }}">深圳大学官网个人主页</a>
+      {{ with .Site.Params.orcid }}<a href="{{ . }}">ORCID</a>{{ else }}<span>ORCID: 待补充</span>{{ end }}
+    </nav>
+  </footer>
+</body>
+</html>

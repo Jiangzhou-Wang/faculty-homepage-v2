@@ -1,0 +1,156 @@
+{{ define "main" }}
+<section class="hero">
+  <div class="hero-copy">
+    <p class="eyebrow">{{ .Site.Params.institution }} · {{ .Site.Params.department }}</p>
+    <h1>{{ .Site.Params.name }}</h1>
+    <p class="subtitle">{{ .Site.Params.title }} <span>{{ .Site.Params.chineseTitle }}</span></p>
+    <p class="research-line">{{ .Site.Params.researchSummary }}</p>
+    <div class="hero-content">
+      {{ .Content }}
+    </div>
+    <div class="link-strip" aria-label="学术链接">
+      <a href="{{ .Site.Params.universityProfile }}">深圳大学官网个人主页</a>
+      <a href="{{ .Site.Params.googleScholar }}">Google Scholar</a>
+      <a href="{{ .Site.Params.homepage }}">Github</a>
+      {{ with .Site.Params.orcid }}<a href="{{ . }}">ORCID</a>{{ else }}<span>ORCID: 待补充</span>{{ end }}
+    </div>
+  </div>
+
+  <aside class="hero-aside" aria-label="Faculty information">
+    <figure class="portrait-card">
+      <img src="{{ .Site.Params.photo | relURL }}" alt="{{ .Site.Params.name }} portrait">
+      <figcaption>{{ .Site.Params.name }} · {{ .Site.Params.title }}</figcaption>
+    </figure>
+
+    <section class="clock-card" data-clock data-timezone="{{ .Site.Params.timezone }}">
+      <div class="clock-copy">
+        <p class="clock-label">Local Time</p>
+        <time class="clock-date" data-clock-date>----</time>
+        <time class="clock-time" data-clock-time>--:--:--</time>
+      </div>
+      <div class="analog-clock" aria-hidden="true">
+        <span class="clock-number number-12">12</span>
+        <span class="clock-number number-1">1</span>
+        <span class="clock-number number-2">2</span>
+        <span class="clock-number number-3">3</span>
+        <span class="clock-number number-4">4</span>
+        <span class="clock-number number-5">5</span>
+        <span class="clock-number number-6">6</span>
+        <span class="clock-number number-7">7</span>
+        <span class="clock-number number-8">8</span>
+        <span class="clock-number number-9">9</span>
+        <span class="clock-number number-10">10</span>
+        <span class="clock-number number-11">11</span>
+        <span class="clock-tick tick-12"></span>
+        <span class="clock-tick tick-3"></span>
+        <span class="clock-tick tick-6"></span>
+        <span class="clock-tick tick-9"></span>
+        <span class="clock-hand hour-hand" data-hour-hand></span>
+        <span class="clock-hand minute-hand" data-minute-hand></span>
+        <span class="clock-hand second-hand" data-second-hand></span>
+        <span class="clock-pin"></span>
+      </div>
+    </section>
+
+    <section class="faculty-card">
+      <p class="card-label">Office</p>
+      <p>{{ .Site.Params.office }}</p>
+      <p class="card-label">Contact</p>
+      <p><a href="mailto:{{ .Site.Params.email }}">{{ .Site.Params.email }}</a></p>
+      <p>Office phone: {{ .Site.Params.officePhone }}</p>
+    </section>
+  </aside>
+</section>
+
+<section class="home-section">
+  <div class="section-heading">
+    <p class="eyebrow">Research Areas</p>
+    <h2>Statistical modeling for modern network and dependent data</h2>
+  </div>
+  <div class="area-grid">
+    <article>
+      <h3>Network Data</h3>
+      <p>Statistical modeling and inference for complex, dynamic, bipartite, and multilayer networks.</p>
+    </article>
+    <article>
+      <h3>Multiple Testing</h3>
+      <p>Large-scale dependent multiple testing with hidden Markov and semi-Markov structures.</p>
+    </article>
+    <article>
+      <h3>AI + Statistics</h3>
+      <p>Interfaces between statistical methodology, machine learning, deep learning, graph neural networks, and large language models.</p>
+    </article>
+  </div>
+</section>
+
+<section class="home-section split-section">
+  <article class="publications-panel">
+    <div class="section-heading compact">
+      <p class="eyebrow">Selected Publications</p>
+      <h2>Recent work</h2>
+    </div>
+    <ol class="publication-list">
+      <li>
+        <div class="pub-index">01</div>
+        <div>
+          <h3>Two-way node popularity model for directed and bipartite networks</h3>
+          <p>Bing-Yi Jing, Ting Li, Jiangzhou Wang and Ya Wang.</p>
+          <p class="pub-meta">Journal of Machine Learning Research · 2026</p>
+        </div>
+      </li>
+      <li>
+        <div class="pub-index">02</div>
+        <div>
+          <h3>Joint community detection in random effects stochastic block models via the split-likelihood method</h3>
+          <p>Jiangzhou Wang, Meier Wu, Yang Liu, Binghui Liu and Jianhua Guo.</p>
+          <p class="pub-meta">Journal of Computational and Graphical Statistics · 2026</p>
+        </div>
+      </li>
+      <li>
+        <div class="pub-index">03</div>
+        <div>
+          <h3>Fast network community detection with profile-pseudo likelihood methods</h3>
+          <p>Jiangzhou Wang, Jingfei Zhang, Binghui Liu, Ji Zhu and Jianhua Guo.</p>
+          <p class="pub-meta">Journal of the American Statistical Association · 2023</p>
+        </div>
+      </li>
+    </ol>
+    <a class="text-link" href="{{ "publications/" | relURL }}">View all publications</a>
+  </article>
+
+  <article class="news-panel">
+    <div class="section-heading compact">
+      <p class="eyebrow">News</p>
+      <h2>Recent updates</h2>
+    </div>
+    <div class="news-timeline">
+      <article>
+        <time>2026</time>
+        <p>Two-way node popularity model for directed and bipartite networks appeared in JMLR.</p>
+      </article>
+      <article>
+        <time>2025</time>
+        <p>Started the Shenzhen high-level talent research startup project.</p>
+      </article>
+      <article>
+        <time>2024</time>
+        <p>Large-scale dependent multiple testing via hidden semi-Markov models appeared in Computational Statistics.</p>
+      </article>
+    </div>
+    <a class="text-link" href="{{ "news/" | relURL }}">View news archive</a>
+  </article>
+</section>
+
+<section class="home-section contact-band">
+  <div>
+    <p class="eyebrow">Contact</p>
+    <h2>Academic exchange and student inquiries</h2>
+    <p>欢迎对统计网络建模、大规模相依数据多重检验、机器学习与统计学交叉方向感兴趣的同学和同行联系交流。</p>
+  </div>
+  <div class="contact-details">
+    <p><span>Email</span><a href="mailto:{{ .Site.Params.email }}">{{ .Site.Params.email }}</a></p>
+    <p><span>Office</span>{{ .Site.Params.office }}</p>
+    <p><span>Institution</span>{{ .Site.Params.institution }}</p>
+  </div>
+</section>
+{{ end }}
