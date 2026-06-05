@@ -126,7 +126,7 @@
 
     daysEl.innerHTML = rows.join("");
     setLocation(root, location.name);
-    setStatus(root, "Updated from Open-Meteo, browser local time. / 数据来自 Open-Meteo，按浏览器本地时间显示。");
+    setStatus(root, "");
   }
 
   function showFallback(root, message) {
@@ -162,6 +162,51 @@
     const data = await response.json();
     if (!data.daily || !Array.isArray(data.daily.time)) throw new Error("Weather data missing");
     return data.daily;
+  }
+
+  function joinAddress(parts, separator) {
+    const values = parts.filter(Boolean);
+    return Array.from(new Set(values)).join(separator);
+  }
+
+  async function fetchReverseAddress(latitude, longitude) {
+    const baseUrl = "https://api.bigdatacloud.net/data/reverse-geocode-client";
+    const common = {
+      latitude: String(latitude),
+      longitude: String(longitude)
+    };
+    const urls = ["en", "zh"].map(function (language) {
+      const params = new URLSearchParams({
+        ...common,
+        localityLanguage: language
+      });
+      return `${baseUrl}?${params.toString()}`;
+    });
+
+    const responses = await Promise.all(urls.map(function (url) {
+      return fetch(url);
+    }));
+    if (responses.some(function (response) { return !response.ok; })) {
+      throw new Error("Reverse geocoding failed");
+    }
+
+    const english = await responses[0].json();
+    const chinese = await responses[1].json();
+    const englishName = joinAddress([
+      english.locality,
+      english.city,
+      english.principalSubdivision,
+      english.countryName
+    ], ", ");
+    const chineseName = joinAddress([
+      chinese.locality,
+      chinese.city,
+      chinese.principalSubdivision,
+      chinese.countryName
+    ], "，");
+
+    if (!englishName && !chineseName) throw new Error("Reverse address missing");
+    return `${englishName || "Located area"} / ${chineseName || "已定位地区"}`;
   }
 
   function formatLocationName(result) {
@@ -287,12 +332,15 @@
 
   async function loadDefaultWeather(root) {
     try {
-      setStatus(root, "Requesting current location... / 正在请求当前位置...");
+      setStatus(root, "Locating weather area... / 正在定位天气地区...");
       const position = await getCurrentPosition(3500);
+      const latitude = position.coords.latitude;
+      const longitude = position.coords.longitude;
+      const name = await fetchReverseAddress(latitude, longitude);
       await loadWeather(root, {
-        name: "Current location / 当前位置",
-        latitude: position.coords.latitude,
-        longitude: position.coords.longitude
+        name,
+        latitude,
+        longitude
       });
     } catch (error) {
       await loadWeather(root, fallbackLocation);
