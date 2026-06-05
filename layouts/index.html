@@ -1,6 +1,45 @@
 {{ define "main" }}
 <section class="hero">
   <div class="hero-copy">
+    <div class="weather-widget" data-weather data-latitude="22.5431" data-longitude="114.0579" data-location="Shenzhen, China">
+      <div class="weather-panel" aria-live="polite">
+        <div class="weather-summary">
+          <p class="weather-location" data-weather-location>Current location / 当前位置</p>
+          <p class="weather-updated" data-weather-updated>Loading local forecast... / 正在加载本地天气...</p>
+          <form class="weather-search" data-weather-search>
+            <label for="weather-query">Search another location / 查询其他地区</label>
+            <div>
+              <input id="weather-query" name="weather-query" type="search" placeholder="e.g. Anyang / 安阳, Lanzhou / 兰州">
+              <button type="submit">Search / 查询</button>
+            </div>
+          </form>
+        </div>
+        <div class="weather-days" data-weather-days>
+          <article class="weather-day">
+            <div class="weather-icon" aria-hidden="true">
+              <svg viewBox="0 0 72 56" focusable="false">
+                <path d="M24 33.5h29.5a11.5 11.5 0 0 0 1.6-22.9A17.8 17.8 0 0 0 20.9 16 9 9 0 0 0 24 33.5Z"></path>
+                <path d="M23 42l-3 7M36 42l-3 7M49 42l-3 7"></path>
+              </svg>
+            </div>
+            <p class="weather-day-name">Today / 今日</p>
+            <p class="weather-condition">Loading / 加载中</p>
+            <p class="weather-temp">-- / --</p>
+          </article>
+          <article class="weather-day">
+            <div class="weather-icon" aria-hidden="true">
+              <svg viewBox="0 0 72 56" focusable="false">
+                <path d="M24 33.5h29.5a11.5 11.5 0 0 0 1.6-22.9A17.8 17.8 0 0 0 20.9 16 9 9 0 0 0 24 33.5Z"></path>
+                <path d="M23 42l-3 7M36 42l-3 7M49 42l-3 7"></path>
+              </svg>
+            </div>
+            <p class="weather-day-name">Tomorrow / 明日</p>
+            <p class="weather-condition">Loading / 加载中</p>
+            <p class="weather-temp">-- / --</p>
+          </article>
+        </div>
+      </div>
+    </div>
     <p class="eyebrow">{{ .Site.Params.institution }} · {{ .Site.Params.department }}</p>
     <h1>{{ .Site.Params.name }}</h1>
     <p class="subtitle">{{ .Site.Params.title }} <span>{{ .Site.Params.chineseTitle }}</span></p>
@@ -60,50 +99,6 @@
       <p>Office phone: {{ .Site.Params.officePhone }}</p>
     </section>
   </aside>
-</section>
-
-<section class="home-section weather-section" data-weather data-latitude="22.5431" data-longitude="114.0579" data-location="Shenzhen, China">
-  <div class="section-heading compact">
-    <p class="eyebrow">Local Weather / 本地天气</p>
-    <h2>Two-day local forecast / 未来两天天气</h2>
-  </div>
-  <div class="weather-panel" aria-live="polite">
-    <div class="weather-summary">
-      <p class="weather-location" data-weather-location>Current location / 当前位置</p>
-      <p class="weather-updated" data-weather-updated>Loading local forecast... / 正在加载本地天气...</p>
-      <form class="weather-search" data-weather-search>
-        <label for="weather-query">Search another location / 查询其他地区</label>
-        <div>
-          <input id="weather-query" name="weather-query" type="search" placeholder="e.g. Hong Kong / 香港, London / 伦敦">
-          <button type="submit">Search / 查询</button>
-        </div>
-      </form>
-    </div>
-    <div class="weather-days" data-weather-days>
-      <article class="weather-day">
-        <div class="weather-icon" aria-hidden="true">
-          <svg viewBox="0 0 72 56" focusable="false">
-            <path d="M24 33.5h29.5a11.5 11.5 0 0 0 1.6-22.9A17.8 17.8 0 0 0 20.9 16 9 9 0 0 0 24 33.5Z"></path>
-            <path d="M23 42l-3 7M36 42l-3 7M49 42l-3 7"></path>
-          </svg>
-        </div>
-        <p class="weather-day-name">Today / 今日</p>
-        <p class="weather-condition">Loading / 加载中</p>
-        <p class="weather-temp">-- / --</p>
-      </article>
-      <article class="weather-day">
-        <div class="weather-icon" aria-hidden="true">
-          <svg viewBox="0 0 72 56" focusable="false">
-            <path d="M24 33.5h29.5a11.5 11.5 0 0 0 1.6-22.9A17.8 17.8 0 0 0 20.9 16 9 9 0 0 0 24 33.5Z"></path>
-            <path d="M23 42l-3 7M36 42l-3 7M49 42l-3 7"></path>
-          </svg>
-        </div>
-        <p class="weather-day-name">Tomorrow / 明日</p>
-        <p class="weather-condition">Loading / 加载中</p>
-        <p class="weather-temp">-- / --</p>
-      </article>
-    </div>
-  </div>
 </section>
 
 <section class="home-section">

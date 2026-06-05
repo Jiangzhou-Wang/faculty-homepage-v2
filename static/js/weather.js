@@ -58,6 +58,37 @@
     return `${condition.en} / ${condition.zh}`;
   }
 
+  function hasChineseText(value) {
+    return /[\u3400-\u9fff]/.test(value);
+  }
+
+  function normalizeChinesePlace(value) {
+    return value
+      .trim()
+      .replace(/\s+/g, "")
+      .replace(/(特别行政区|自治区|地区|盟|自治州|市|县|区|省)$/u, "");
+  }
+
+  function createQueryVariants(value) {
+    const variants = new Set();
+    const trimmed = value.trim();
+    const compact = trimmed.replace(/\s+/g, "");
+    const normalized = hasChineseText(trimmed) ? normalizeChinesePlace(trimmed) : trimmed;
+
+    [trimmed, compact, normalized].forEach(function (item) {
+      if (item) variants.add(item);
+    });
+
+    if (hasChineseText(trimmed)) {
+      variants.add(compact.replace(/市辖区$/u, ""));
+      variants.add(compact.replace(/新区$/u, ""));
+      variants.add(compact.replace(/^(中国|中华人民共和国)/u, ""));
+      variants.add(normalized.replace(/^(中国|中华人民共和国)/u, ""));
+    }
+
+    return Array.from(variants).filter(Boolean);
+  }
+
   function setStatus(root, message) {
     const updatedEl = root.querySelector("[data-weather-updated]");
     updatedEl.textContent = message;
@@ -133,24 +164,83 @@
     return data.daily;
   }
 
-  async function fetchLocation(query) {
+  function formatLocationName(result) {
+    const region = result.admin1 ? `, ${result.admin1}` : "";
+    const country = result.country ? `, ${result.country}` : "";
+    return `${result.name}${region}${country}`;
+  }
+
+  function scoreLocation(result, rawQuery, normalizedQuery) {
+    const query = rawQuery.replace(/\s+/g, "");
+    const fields = [result.name, result.admin1, result.admin2, result.country].filter(Boolean);
+    const joined = fields.join("");
+    let score = 0;
+
+    if (result.country_code === "CN") score += 40;
+    if (result.name === query || result.name === normalizedQuery) score += 80;
+    if (joined.includes(query)) score += 120;
+    if (joined.includes(normalizedQuery)) score += 60;
+    if (result.admin2 && (result.admin2.includes(query) || result.admin2.includes(normalizedQuery))) score += 95;
+    if (query.includes(result.name) || normalizedQuery.includes(result.name)) score += 35;
+    if (typeof result.population === "number") score += Math.min(30, Math.log10(result.population + 1) * 6);
+    if (result.feature_code === "PPLA" || result.feature_code === "PPLA2") score += 20;
+
+    return score;
+  }
+
+  async function requestLocations(query, language) {
     const params = new URLSearchParams({
       name: query,
-      count: "1",
-      language: "en",
+      count: "10",
+      language,
       format: "json"
     });
 
     const response = await fetch(`https://geocoding-api.open-meteo.com/v1/search?${params.toString()}`);
     if (!response.ok) throw new Error("Location request failed");
     const data = await response.json();
-    if (!data.results || !data.results.length) throw new Error("Location not found");
+    return Array.isArray(data.results) ? data.results : [];
+  }
 
-    const result = data.results[0];
-    const region = result.admin1 ? `, ${result.admin1}` : "";
-    const country = result.country ? `, ${result.country}` : "";
+  async function fetchLocation(query) {
+    const rawQuery = query.trim();
+    const normalizedQuery = hasChineseText(rawQuery) ? normalizeChinesePlace(rawQuery) : rawQuery;
+    const queryVariants = createQueryVariants(rawQuery);
+    const attempts = hasChineseText(rawQuery)
+      ? queryVariants.flatMap(function (item) {
+          return [
+            { query: item, language: "zh" },
+            { query: item, language: "en" }
+          ];
+        })
+      : queryVariants.map(function (item) {
+          return { query: item, language: "en" };
+        });
+
+    const seen = new Set();
+    const results = [];
+
+    for (const attempt of attempts) {
+      if (!attempt.query || seen.has(`${attempt.language}:${attempt.query}`)) continue;
+      seen.add(`${attempt.language}:${attempt.query}`);
+      results.push(...await requestLocations(attempt.query, attempt.language));
+    }
+
+    if (!results.length) throw new Error("Location not found");
+
+    const result = results
+      .map(function (candidate) {
+        return {
+          candidate,
+          score: scoreLocation(candidate, rawQuery, normalizedQuery)
+        };
+      })
+      .sort(function (a, b) {
+        return b.score - a.score;
+      })[0].candidate;
+
     return {
-      name: `${result.name}${region}${country}`,
+      name: formatLocationName(result),
       latitude: result.latitude,
       longitude: result.longitude
     };
