@@ -206,7 +206,7 @@
     ], "，");
 
     if (!englishName && !chineseName) throw new Error("Reverse address missing");
-    return `${englishName || "Located area"} / ${chineseName || "已定位地区"}`;
+    return `${chineseName || "已定位地区"} / ${englishName || "Located area"}`;
   }
 
   function formatLocationName(result) {
