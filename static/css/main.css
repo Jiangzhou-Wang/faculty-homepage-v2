@@ -81,9 +81,11 @@ a:hover {
 
 .main-nav {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 20px;
   align-items: center;
+  overflow-x: auto;
+  white-space: nowrap;
 }
 
 .main-nav a {
@@ -255,6 +257,8 @@ h3 {
 }
 
 .portrait-card figcaption a {
+  flex-shrink: 0;
+  margin-left: auto;
   color: var(--navy);
   text-decoration: none;
 }
@@ -956,7 +960,7 @@ h3 {
   }
 
   .main-nav {
-    gap: 12px 16px;
+    gap: 16px;
   }
 
   .hero {
