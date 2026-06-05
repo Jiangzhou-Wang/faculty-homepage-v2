@@ -198,15 +198,16 @@
       english.principalSubdivision,
       english.countryName
     ], ", ");
+    const chineseCountryName = chinese.countryName === "中华人民共和国" ? "中国" : chinese.countryName;
     const chineseName = joinAddress([
       chinese.locality,
       chinese.city,
       chinese.principalSubdivision,
-      chinese.countryName
+      chineseCountryName
     ], "，");
 
     if (!englishName && !chineseName) throw new Error("Reverse address missing");
-    return `${chineseName || "已定位地区"} / ${englishName || "Located area"}`;
+    return `${chineseName || "已定位地区"}/${englishName || "Located area"}`;
   }
 
   function formatLocationName(result) {
