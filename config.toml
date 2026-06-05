@@ -16,6 +16,7 @@ disableKinds = ["taxonomy", "term"]
   googleScholar = "https://scholar.google.com/citations?user=YV57gNcAAAAJ&hl=en"
   homepage = "https://jiangzhou-wang.github.io"
   universityProfile = "https://math.szu.edu.cn/info/1092/2961.htm"
+  cv = "files/CV_JiangzhouWang.pdf"
   photo = "images/wang-jiangzhou.jpg"
   github = ""
   orcid = ""

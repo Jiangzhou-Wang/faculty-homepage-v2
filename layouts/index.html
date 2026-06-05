@@ -49,6 +49,7 @@
     </div>
     <div class="link-strip" aria-label="学术链接">
       <a href="{{ .Site.Params.universityProfile }}">深圳大学官网个人主页</a>
+      <a href="{{ .Site.Params.cv | relURL }}" download>CV</a>
       <a href="{{ .Site.Params.googleScholar }}">Google Scholar</a>
       <a href="{{ .Site.Params.homepage }}">Github</a>
       {{ with .Site.Params.orcid }}<a href="{{ . }}">ORCID</a>{{ else }}<span>ORCID: 待补充</span>{{ end }}
