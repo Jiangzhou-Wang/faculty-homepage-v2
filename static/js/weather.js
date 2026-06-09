@@ -94,9 +94,52 @@
     updatedEl.textContent = message;
   }
 
+  function toSimplifiedChinese(value) {
+    const replacements = {
+      "龍": "龙",
+      "華": "华",
+      "區": "区",
+      "廣": "广",
+      "東": "东",
+      "國": "国",
+      "縣": "县",
+      "臺": "台",
+      "灣": "湾",
+      "門": "门",
+      "雲": "云",
+      "貴": "贵",
+      "陽": "阳",
+      "蘭": "兰",
+      "鄉": "乡",
+      "鎮": "镇",
+      "蘇": "苏",
+      "寧": "宁",
+      "陝": "陕",
+      "內": "内",
+      "遼": "辽",
+      "慶": "庆",
+      "濟": "济",
+      "鄭": "郑",
+      "長": "长",
+      "烏": "乌",
+      "齊": "齐",
+      "爾": "尔",
+      "瀋": "沈",
+      "哈爾濱": "哈尔滨"
+    };
+
+    return String(value || "").replace(/哈爾濱|[龍華區廣東國縣臺灣門雲貴陽蘭鄉鎮蘇寧陝內遼慶濟鄭長烏齊爾瀋]/g, function (match) {
+      return replacements[match] || match;
+    });
+  }
+
+  function cleanChineseLocationName(name) {
+    return toSimplifiedChinese(String(name || "").split("/")[0].trim());
+  }
+
   function setLocation(root, name) {
     const locationEl = root.querySelector("[data-weather-location]");
-    locationEl.textContent = name;
+    locationEl.textContent = cleanChineseLocationName(name);
   }
 
   function renderLoading(root, name) {
@@ -165,7 +208,7 @@
   }
 
   function joinAddress(parts, separator) {
-    const values = parts.filter(Boolean);
+    const values = parts.map(toSimplifiedChinese).filter(Boolean);
     return Array.from(new Set(values)).join(separator);
   }
 
