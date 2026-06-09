@@ -41,7 +41,7 @@ description: "王江洲的研究方向、论文、项目与科研成果。"
 
 - Biao Liu, Jiangzhou Wang, Binghui Liu and Jianhua Guo. Fast community detection of discrete-time temporal networks in mixture dynamic stochastic block models. Journal of the American Statistical Association. Under Review.
 - Yang Liu, Jiangzhou Wang, Binghui Liu and Jianhua Guo. Community detection in weighted networks via expectation profile-pseudo likelihood maximization. Biometrika. Under Review.
-- Xiji Sun, Yang Liu, Jiangzhou Wang (co-corresponding author) and Binghui Liu. Degree-Corrected Pairwise Covariates-Adjusted Block Model for Community Detection. Under Review.
+- Xiji Sun, Yang Liu, Jiangzhou Wang (co-corresponding author) and Binghui Liu. Degree-Corrected Pairwise Covariates-Adjusted Block Model for Community Detection. Journal of the American Statistical Association. Under Review.
 
 ## 科研项目
 
