@@ -1,7 +1,7 @@
 // Lightweight two-day weather widget for the homepage.
 (function () {
   const fallbackLocation = {
-    name: "Shenzhen, China / 中国深圳",
+    name: "深圳市，广东省，中国",
     latitude: 22.5431,
     longitude: 114.0579
   };
@@ -169,36 +169,26 @@
     return Array.from(new Set(values)).join(separator);
   }
 
+  function formatChineseCountryName(value) {
+    if (value === "中华人民共和国") return "中国";
+    return value;
+  }
+
   async function fetchReverseAddress(latitude, longitude) {
     const baseUrl = "https://api.bigdatacloud.net/data/reverse-geocode-client";
     const common = {
       latitude: String(latitude),
       longitude: String(longitude)
     };
-    const urls = ["en", "zh"].map(function (language) {
-      const params = new URLSearchParams({
-        ...common,
-        localityLanguage: language
-      });
-      return `${baseUrl}?${params.toString()}`;
+    const params = new URLSearchParams({
+      ...common,
+      localityLanguage: "zh"
     });
+    const response = await fetch(`${baseUrl}?${params.toString()}`);
+    if (!response.ok) throw new Error("Reverse geocoding failed");
 
-    const responses = await Promise.all(urls.map(function (url) {
-      return fetch(url);
-    }));
-    if (responses.some(function (response) { return !response.ok; })) {
-      throw new Error("Reverse geocoding failed");
-    }
-
-    const english = await responses[0].json();
-    const chinese = await responses[1].json();
-    const englishName = joinAddress([
-      english.locality,
-      english.city,
-      english.principalSubdivision,
-      english.countryName
-    ], ", ");
-    const chineseCountryName = chinese.countryName === "中华人民共和国" ? "中国" : chinese.countryName;
+    const chinese = await response.json();
+    const chineseCountryName = formatChineseCountryName(chinese.countryName);
     const chineseName = joinAddress([
       chinese.locality,
       chinese.city,
@@ -206,14 +196,17 @@
       chineseCountryName
     ], "，");
 
-    if (!englishName && !chineseName) throw new Error("Reverse address missing");
-    return `${chineseName || "已定位地区"}/${englishName || "Located area"}`;
+    if (!chineseName) throw new Error("Reverse address missing");
+    return chineseName;
   }
 
   function formatLocationName(result) {
-    const region = result.admin1 ? `, ${result.admin1}` : "";
-    const country = result.country ? `, ${result.country}` : "";
-    return `${result.name}${region}${country}`;
+    return joinAddress([
+      result.name,
+      result.admin2,
+      result.admin1,
+      formatChineseCountryName(result.country)
+    ], "，");
   }
 
   function scoreLocation(result, rawQuery, normalizedQuery) {
@@ -259,8 +252,11 @@
             { query: item, language: "en" }
           ];
         })
-      : queryVariants.map(function (item) {
-          return { query: item, language: "en" };
+      : queryVariants.flatMap(function (item) {
+          return [
+            { query: item, language: "zh" },
+            { query: item, language: "en" }
+          ];
         });
 
     const seen = new Set();
