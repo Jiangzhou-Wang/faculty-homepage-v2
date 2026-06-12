@@ -5,6 +5,7 @@ description: "王江洲近期科研、项目与教学动态。"
 
 ## 2026
 
+- 主持2025年深圳市基础研究专项自然科学基金青年项目B类（原深圳市优青）项目，项目周期为 2026.05.26–2029.05.26。
 - Two-way node popularity model for directed and bipartite networks 发表于 Journal of Machine Learning Research。
 - Joint community detection in random effects stochastic block models via the split-likelihood method 发表于 Journal of Computational and Graphical Statistics。
 
