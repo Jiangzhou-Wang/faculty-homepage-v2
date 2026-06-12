@@ -39,9 +39,11 @@ description: "王江洲的研究方向、论文、项目与科研成果。"
 
 ## 投稿论文
 
-- Biao Liu, Jiangzhou Wang, Binghui Liu and Jianhua Guo. Fast community detection of discrete-time temporal networks in mixture dynamic stochastic block models. Journal of the American Statistical Association. Under Review.
-- Yang Liu, Jiangzhou Wang, Binghui Liu and Jianhua Guo. Community detection in weighted networks via expectation profile-pseudo likelihood maximization. Biometrika. Under Review.
-- Xiji Sun, Yang Liu, Jiangzhou Wang (co-corresponding author) and Binghui Liu. Degree-Corrected Pairwise Covariates-Adjusted Block Model for Community Detection. Journal of the American Statistical Association. Under Review.
+- Jiangzhou Wang, Ting Li, Zhigen Gao, Changhu Wang and Jianhua Guo. Two-way latent matching model for network analysis. Submitted. Under Review.
+- Jiangzhou Wang, Dongni Song and Pengfei Wang. Large-scale spatial multiple testing via pseudo-2D hidden Markov models. Submitted. Under Review.
+- Biao Liu, Jiangzhou Wang, Binghui Liu and Jianhua Guo. Fast community detection of discrete-time temporal networks in mixture dynamic stochastic block models. Submitted. Under Review.
+- Yang Liu, Jiangzhou Wang, Binghui Liu and Jianhua Guo. Community detection in weighted networks via expectation profile-pseudo likelihood maximization. Submitted. Under Review.
+- Xiji Sun, Yang Liu, Jiangzhou Wang (co-corresponding author) and Binghui Liu. Degree-Corrected Pairwise Covariates-Adjusted Block Model for Community Detection. Submitted. Under Review.
 
 ## 科研项目
 
