@@ -21,11 +21,14 @@
     label: root.dataset.defaultLabel || "深圳大学"
   };
 
-  const tileUrl = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
+  const tileUrl = "https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=7&x={x}&y={y}&z={z}";
   const tileOptions = {
     maxZoom: 19,
-    attribution: "&copy; OpenStreetMap contributors"
+    subdomains: ["1", "2", "3", "4"],
+    attribution: "高德地图"
   };
+  const gcjA = 6378245.0;
+  const gcjEe = 0.006693421622965943;
 
   let currentPosition = defaultPosition;
   let destinationPosition = null;
@@ -52,12 +55,70 @@
     return window.L.tileLayer(tileUrl, tileOptions);
   }
 
+  function outOfChina(lat, lng) {
+    return lng < 72.004 || lng > 137.8347 || lat < 0.8293 || lat > 55.8271;
+  }
+
+  function transformLat(x, y) {
+    let ret = -100.0 + 2.0 * x + 3.0 * y + 0.2 * y * y + 0.1 * x * y + 0.2 * Math.sqrt(Math.abs(x));
+    ret += (20.0 * Math.sin(6.0 * x * Math.PI) + 20.0 * Math.sin(2.0 * x * Math.PI)) * 2.0 / 3.0;
+    ret += (20.0 * Math.sin(y * Math.PI) + 40.0 * Math.sin(y / 3.0 * Math.PI)) * 2.0 / 3.0;
+    ret += (160.0 * Math.sin(y / 12.0 * Math.PI) + 320.0 * Math.sin(y * Math.PI / 30.0)) * 2.0 / 3.0;
+    return ret;
+  }
+
+  function transformLng(x, y) {
+    let ret = 300.0 + x + 2.0 * y + 0.1 * x * x + 0.1 * x * y + 0.1 * Math.sqrt(Math.abs(x));
+    ret += (20.0 * Math.sin(6.0 * x * Math.PI) + 20.0 * Math.sin(2.0 * x * Math.PI)) * 2.0 / 3.0;
+    ret += (20.0 * Math.sin(x * Math.PI) + 40.0 * Math.sin(x / 3.0 * Math.PI)) * 2.0 / 3.0;
+    ret += (150.0 * Math.sin(x / 12.0 * Math.PI) + 300.0 * Math.sin(x / 30.0 * Math.PI)) * 2.0 / 3.0;
+    return ret;
+  }
+
+  function toMapPosition(position) {
+    const lat = position.lat;
+    const lng = position.lng;
+    if (outOfChina(lat, lng)) {
+      return position;
+    }
+
+    let dLat = transformLat(lng - 105.0, lat - 35.0);
+    let dLng = transformLng(lng - 105.0, lat - 35.0);
+    const radLat = lat / 180.0 * Math.PI;
+    let magic = Math.sin(radLat);
+    magic = 1 - gcjEe * magic * magic;
+    const sqrtMagic = Math.sqrt(magic);
+    dLat = (dLat * 180.0) / ((gcjA * (1 - gcjEe)) / (magic * sqrtMagic) * Math.PI);
+    dLng = (dLng * 180.0) / (gcjA / sqrtMagic * Math.cos(radLat) * Math.PI);
+    return {
+      lat: lat + dLat,
+      lng: lng + dLng,
+      label: position.label
+    };
+  }
+
+  function toMapLatLng(position) {
+    const mapped = toMapPosition(position);
+    return [mapped.lat, mapped.lng];
+  }
+
+  function mapRouteGeometry(geometry) {
+    return {
+      type: geometry.type,
+      coordinates: geometry.coordinates.map(function (coord) {
+        const mapped = toMapPosition({ lng: coord[0], lat: coord[1] });
+        return [mapped.lng, mapped.lat];
+      })
+    };
+  }
+
   function setMarker(map, marker, position, label) {
     if (!map) {
       return marker;
     }
-    const nextMarker = marker || window.L.marker([position.lat, position.lng]).addTo(map);
-    nextMarker.setLatLng([position.lat, position.lng]);
+    const latLng = toMapLatLng(position);
+    const nextMarker = marker || window.L.marker(latLng).addTo(map);
+    nextMarker.setLatLng(latLng);
     nextMarker.bindPopup(label || position.label || "当前位置");
     return nextMarker;
   }
@@ -71,12 +132,12 @@
 
     if (previewMap) {
       previewMarker = setMarker(previewMap, previewMarker, currentPosition, currentPosition.label);
-      previewMap.setView([currentPosition.lat, currentPosition.lng], 14);
+      previewMap.setView(toMapLatLng(currentPosition), 14);
     }
 
     if (fullMap) {
       fullCurrentMarker = setMarker(fullMap, fullCurrentMarker, currentPosition, currentPosition.label);
-      fullMap.setView([currentPosition.lat, currentPosition.lng], 14);
+      fullMap.setView(toMapLatLng(currentPosition), 14);
     }
   }
 
@@ -87,7 +148,7 @@
     }
 
     previewMap = window.L.map(previewEl, {
-      center: [defaultPosition.lat, defaultPosition.lng],
+      center: toMapLatLng(defaultPosition),
       zoom: 13,
       zoomControl: false,
       scrollWheelZoom: false,
@@ -138,7 +199,7 @@
 
     if (!fullMap) {
       fullMap = window.L.map(fullEl, {
-        center: [currentPosition.lat, currentPosition.lng],
+        center: toMapLatLng(currentPosition),
         zoom: 14
       });
       createTileLayer().addTo(fullMap);
@@ -152,8 +213,17 @@
 
     setTimeout(function () {
       fullMap.invalidateSize();
-      fullMap.setView([currentPosition.lat, currentPosition.lng], 14);
+      fullMap.setView(toMapLatLng(currentPosition), 14);
     }, 80);
+  }
+
+  function requestMapFullscreen() {
+    if (!modal || !modal.requestFullscreen) {
+      return;
+    }
+    modal.requestFullscreen().catch(function () {
+      setFullStatus("浏览器未允许系统全屏，已使用页面全屏地图。");
+    });
   }
 
   function openModal() {
@@ -164,6 +234,12 @@
     document.body.classList.add("map-modal-open");
     ensureFullMap();
     setFullStatus("等待地点检索或路线规划。");
+    requestMapFullscreen();
+    setTimeout(function () {
+      if (fullMap) {
+        fullMap.invalidateSize();
+      }
+    }, 240);
   }
 
   function closeModal() {
@@ -172,6 +248,9 @@
     }
     modal.hidden = true;
     document.body.classList.remove("map-modal-open");
+    if (document.fullscreenElement === modal && document.exitFullscreen) {
+      document.exitFullscreen().catch(function () {});
+    }
   }
 
   function geocodeUrl(query) {
@@ -252,8 +331,8 @@
 
     fullDestinationMarker = setMarker(fullMap, fullDestinationMarker, destinationPosition, destinationPosition.label);
     const bounds = window.L.latLngBounds(
-      [currentPosition.lat, currentPosition.lng],
-      [destinationPosition.lat, destinationPosition.lng]
+      toMapLatLng(currentPosition),
+      toMapLatLng(destinationPosition)
     );
     fullMap.fitBounds(bounds, { padding: [42, 42], maxZoom: 15 });
   }
@@ -315,7 +394,7 @@
     if (routeLayer) {
       routeLayer.remove();
     }
-    routeLayer = window.L.geoJSON(route.geometry, {
+    routeLayer = window.L.geoJSON(mapRouteGeometry(route.geometry), {
       style: {
         color: "#24527a",
         opacity: 0.86,
