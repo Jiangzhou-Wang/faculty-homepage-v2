@@ -6,7 +6,7 @@
   <meta name="description" content="{{ with .Description }}{{ . }}{{ else }}{{ .Site.Params.name }} - {{ .Site.Params.institution }}{{ end }}">
   <title>{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }} | {{ .Site.Params.name }}{{ end }}</title>
   {{ block "head" . }}{{ end }}
-  <link rel="stylesheet" href="{{ "css/main.css?v=20260613-leaflet-map" | relURL }}">
+  <link rel="stylesheet" href="{{ "css/main.css?v=20260613-osm-map" | relURL }}">
   <script src="{{ "js/clock.js" | relURL }}" defer></script>
 </head>
 <body>
