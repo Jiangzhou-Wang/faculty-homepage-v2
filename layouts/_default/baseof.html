@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="{{ with .Description }}{{ . }}{{ else }}{{ .Site.Params.name }} - {{ .Site.Params.institution }}{{ end }}">
   <title>{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }} | {{ .Site.Params.name }}{{ end }}</title>
-  <link rel="stylesheet" href="{{ "css/main.css" | relURL }}">
+  {{ block "head" . }}{{ end }}
+  <link rel="stylesheet" href="{{ "css/main.css?v=20260613-map-calendar" | relURL }}">
   <script src="{{ "js/clock.js" | relURL }}" defer></script>
 </head>
 <body>
@@ -20,6 +21,7 @@
         <a href="{{ .URL | relURL }}">{{ .Name }}</a>
         {{ end }}
         <a href="{{ .Site.Params.cv | relURL }}" target="_blank" rel="noopener">CV</a>
+        <a href="{{ .Site.Home.RelPermalink }}#calendar-module">Calendar</a>
       </nav>
     </div>
   </header>

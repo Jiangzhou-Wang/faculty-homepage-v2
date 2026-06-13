@@ -1,3 +1,7 @@
+{{ define "head" }}
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+{{ end }}
+
 {{ define "main" }}
 <section class="hero">
   <div class="hero-copy">
@@ -122,7 +126,37 @@
       <p><a href="mailto:{{ .Site.Params.email }}">{{ .Site.Params.email }}</a></p>
       <p>Office phone: {{ .Site.Params.officePhone }}</p>
     </section>
+
+    <section class="map-card" data-map data-default-latitude="22.5333" data-default-longitude="113.9304" data-default-label="深圳大学">
+      <div class="map-card-header">
+        <div>
+          <p class="card-label">Map</p>
+          <p class="map-status" data-map-status>正在定位当前位置...</p>
+        </div>
+      </div>
+      <div class="map-preview" data-map-preview aria-label="当前位置小地图"></div>
+      <button class="map-expand-button" type="button" data-map-expand>进入大地图</button>
+    </section>
   </aside>
+</section>
+
+<section id="calendar-module" class="home-section calendar-module" aria-labelledby="calendar-title">
+  <div class="section-heading compact">
+    <p class="eyebrow">Calendar</p>
+    <h2 id="calendar-title">阳历、农历与中国法定节假日</h2>
+  </div>
+  <div class="calendar-layout">
+    <article class="calendar-summary-card">
+      <p class="card-label">Today</p>
+      <time class="calendar-today-date" data-calendar-solar>正在加载日期...</time>
+      <p class="calendar-lunar-text" data-calendar-lunar>正在加载农历...</p>
+      <p class="calendar-holiday-chip" data-calendar-holiday>正在加载节假日...</p>
+      <p class="calendar-note">节假日和调休信息来自农历日历库内置的中国节假日数据。</p>
+    </article>
+    <article class="calendar-card" aria-label="阳历、农历和中国法定节假日日历">
+      <div id="academic-calendar" data-calendar></div>
+    </article>
+  </div>
 </section>
 
 <section class="home-section">
@@ -216,5 +250,47 @@
     <p><span>Institution</span>{{ .Site.Params.institution }}</p>
   </div>
 </section>
+<div class="map-modal" data-map-modal hidden>
+  <div class="map-modal-panel" role="dialog" aria-modal="true" aria-labelledby="map-modal-title">
+    <div class="map-modal-header">
+      <div>
+        <p class="eyebrow">Map</p>
+        <h2 id="map-modal-title">地点检索与路线导航</h2>
+      </div>
+      <button class="map-close-button" type="button" data-map-close aria-label="关闭地图">×</button>
+    </div>
+    <div class="map-tools">
+      <form class="map-search-form" data-map-search>
+        <label for="map-search-query">Search</label>
+        <div class="map-inline-form">
+          <input id="map-search-query" name="map-search-query" type="search" placeholder="输入地点名称">
+          <button type="submit">Search</button>
+        </div>
+      </form>
+      <form class="map-route-form" data-map-route>
+        <div class="map-route-grid">
+          <label>
+            <span>Start</span>
+            <input name="route-start" type="search" placeholder="当前位置">
+          </label>
+          <label>
+            <span>Destination</span>
+            <input name="route-end" type="search" placeholder="目的地">
+          </label>
+          <button type="submit">Routing</button>
+        </div>
+      </form>
+    </div>
+    <p class="map-status-line" data-map-full-status>等待地点检索或路线规划。</p>
+    <div class="map-results" data-map-results aria-live="polite"></div>
+    <div class="map-full-canvas" data-map-full aria-label="大地图"></div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.20/index.global.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.20/locales-all.global.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/lunar-javascript@1.7.7/lunar.js" defer></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="" defer></script>
 <script src="{{ "js/weather.js?v=20260609-cn-location" | relURL }}" defer></script>
+<script src="{{ "js/calendar-features.js?v=20260613-2" | relURL }}" defer></script>
+<script src="{{ "js/map-features.js?v=20260613" | relURL }}" defer></script>
 {{ end }}
