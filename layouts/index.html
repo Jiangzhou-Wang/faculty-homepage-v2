@@ -1,3 +1,7 @@
+{{ define "head" }}
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+{{ end }}
+
 {{ define "main" }}
 <section class="hero">
   <div class="hero-copy">
@@ -130,14 +134,7 @@
           <p class="map-status" data-map-status>正在定位当前位置...</p>
         </div>
       </div>
-      <div class="map-preview apple-map-preview" data-map-preview aria-label="Apple 地图位置入口">
-        <div class="apple-map-panel">
-          <span>Apple Maps</span>
-          <strong data-map-preview-label>深圳大学</strong>
-          <p data-map-preview-coordinates>22.5333, 113.9304</p>
-          <a data-map-preview-link href="https://maps.apple.com/?ll=22.5333,113.9304&q=%E6%B7%B1%E5%9C%B3%E5%A4%A7%E5%AD%A6&z=15" target="_blank" rel="noopener">在 Apple 地图中打开</a>
-        </div>
-      </div>
+      <div class="map-preview" data-map-preview aria-label="当前位置小地图"></div>
       <button class="map-expand-button" type="button" data-map-expand>进入大地图</button>
     </section>
   </aside>
@@ -285,23 +282,14 @@
     </div>
     <p class="map-status-line" data-map-full-status>等待地点检索或路线规划。</p>
     <div class="map-results" data-map-results aria-live="polite"></div>
-    <div class="map-full-canvas apple-map-canvas" data-map-full aria-label="Apple 地图全屏入口">
-      <div class="apple-map-hero">
-        <span>Apple Maps</span>
-        <strong data-map-full-label>当前位置</strong>
-        <p data-map-full-coordinates>等待定位或地点选择。</p>
-        <div class="apple-map-actions">
-          <a data-apple-map-open href="https://maps.apple.com/?ll=22.5333,113.9304&q=%E6%B7%B1%E5%9C%B3%E5%A4%A7%E5%AD%A6&z=15" target="_blank" rel="noopener">在 Apple 地图中打开</a>
-          <a data-apple-route-open href="https://maps.apple.com/?daddr=22.5333,113.9304&dirflg=d" target="_blank" rel="noopener" hidden>打开导航</a>
-        </div>
-      </div>
-    </div>
+    <div class="map-full-canvas" data-map-full aria-label="大地图"></div>
   </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.20/index.global.min.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.20/locales-all.global.min.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/lunar-javascript@1.7.7/lunar.js" defer></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin="" defer></script>
 <script src="{{ "js/weather.js?v=20260609-cn-location" | relURL }}" defer></script>
 <script src="{{ "js/calendar-features.js?v=20260613-2" | relURL }}" defer></script>
-<script src="{{ "js/map-features.js?v=20260613-apple-maps" | relURL }}" defer></script>
+<script src="{{ "js/map-features.js?v=20260613-leaflet-fullscreen" | relURL }}" defer></script>
 {{ end }}

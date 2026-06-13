@@ -4,21 +4,16 @@
     return;
   }
 
+  const previewEl = document.querySelector("[data-map-preview]");
   const statusEl = document.querySelector("[data-map-status]");
   const expandButton = document.querySelector("[data-map-expand]");
   const modal = document.querySelector("[data-map-modal]");
+  const fullEl = document.querySelector("[data-map-full]");
   const closeButton = document.querySelector("[data-map-close]");
   const searchForm = document.querySelector("[data-map-search]");
   const routeForm = document.querySelector("[data-map-route]");
   const resultsEl = document.querySelector("[data-map-results]");
   const fullStatusEl = document.querySelector("[data-map-full-status]");
-  const previewLabelEl = document.querySelector("[data-map-preview-label]");
-  const previewCoordinatesEl = document.querySelector("[data-map-preview-coordinates]");
-  const previewLinkEl = document.querySelector("[data-map-preview-link]");
-  const fullLabelEl = document.querySelector("[data-map-full-label]");
-  const fullCoordinatesEl = document.querySelector("[data-map-full-coordinates]");
-  const appleMapLinkEl = document.querySelector("[data-apple-map-open]");
-  const appleRouteLinkEl = document.querySelector("[data-apple-route-open]");
 
   const defaultPosition = {
     lat: Number(root.dataset.defaultLatitude) || 22.5333,
@@ -26,9 +21,20 @@
     label: root.dataset.defaultLabel || "深圳大学"
   };
 
+  const tileUrl = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
+  const tileOptions = {
+    maxZoom: 19,
+    attribution: "&copy; OpenStreetMap contributors"
+  };
+
   let currentPosition = defaultPosition;
   let destinationPosition = null;
-  let routeUrlValue = "";
+  let previewMap = null;
+  let fullMap = null;
+  let previewMarker = null;
+  let fullCurrentMarker = null;
+  let fullDestinationMarker = null;
+  let routeLayer = null;
 
   function setStatus(message) {
     if (statusEl) {
@@ -42,76 +48,63 @@
     }
   }
 
-  function formatCoordinates(position) {
-    return `${position.lat.toFixed(5)}, ${position.lng.toFixed(5)}`;
+  function createTileLayer() {
+    return window.L.tileLayer(tileUrl, tileOptions);
   }
 
-  function appleMapUrl(position, label) {
-    const params = new URLSearchParams({
-      ll: `${position.lat},${position.lng}`,
-      q: label || position.label || "位置",
-      z: "15"
-    });
-    return `https://maps.apple.com/?${params.toString()}`;
+  function setMarker(map, marker, position, label) {
+    if (!map) {
+      return marker;
+    }
+    const nextMarker = marker || window.L.marker([position.lat, position.lng]).addTo(map);
+    nextMarker.setLatLng([position.lat, position.lng]);
+    nextMarker.bindPopup(label || position.label || "当前位置");
+    return nextMarker;
   }
 
-  function appleRouteUrl(start, end) {
-    const params = new URLSearchParams({
-      saddr: `${start.lat},${start.lng}`,
-      daddr: `${end.lat},${end.lng}`,
-      dirflg: "d"
-    });
-    return `https://maps.apple.com/?${params.toString()}`;
-  }
-
-  function updateAppleMapLinks() {
-    const activePosition = destinationPosition || currentPosition;
-    const activeLabel = activePosition.label || "当前位置";
-    const mapUrl = appleMapUrl(activePosition, activeLabel);
-
-    if (previewLabelEl) {
-      previewLabelEl.textContent = currentPosition.label || "当前位置";
-    }
-    if (previewCoordinatesEl) {
-      previewCoordinatesEl.textContent = formatCoordinates(currentPosition);
-    }
-    if (previewLinkEl) {
-      previewLinkEl.href = appleMapUrl(currentPosition, currentPosition.label);
-    }
-
-    if (fullLabelEl) {
-      fullLabelEl.textContent = activeLabel;
-    }
-    if (fullCoordinatesEl) {
-      fullCoordinatesEl.textContent = formatCoordinates(activePosition);
-    }
-    if (appleMapLinkEl) {
-      appleMapLinkEl.href = mapUrl;
-    }
-    if (appleRouteLinkEl) {
-      if (routeUrlValue) {
-        appleRouteLinkEl.href = routeUrlValue;
-        appleRouteLinkEl.hidden = false;
-      } else {
-        appleRouteLinkEl.hidden = true;
-      }
-    }
-  }
-
-  function updateCurrentPosition(position, label) {
+  function updateMaps(position, label) {
     currentPosition = {
       lat: position.lat,
       lng: position.lng,
       label: label || position.label || "当前位置"
     };
-    updateAppleMapLinks();
+
+    if (previewMap) {
+      previewMarker = setMarker(previewMap, previewMarker, currentPosition, currentPosition.label);
+      previewMap.setView([currentPosition.lat, currentPosition.lng], 14);
+    }
+
+    if (fullMap) {
+      fullCurrentMarker = setMarker(fullMap, fullCurrentMarker, currentPosition, currentPosition.label);
+      fullMap.setView([currentPosition.lat, currentPosition.lng], 14);
+    }
+  }
+
+  function initPreviewMap() {
+    if (!window.L || !previewEl) {
+      setStatus("地图资源加载失败。");
+      return;
+    }
+
+    previewMap = window.L.map(previewEl, {
+      center: [defaultPosition.lat, defaultPosition.lng],
+      zoom: 13,
+      zoomControl: false,
+      scrollWheelZoom: false,
+      doubleClickZoom: false,
+      boxZoom: false,
+      keyboard: false,
+      dragging: false
+    });
+    createTileLayer().addTo(previewMap);
+    previewMarker = setMarker(previewMap, previewMarker, defaultPosition, defaultPosition.label);
   }
 
   function requestLocation() {
-    // Apple 地图网页不能跨站嵌入；这里保留定位，并将坐标交给 Apple 地图链接打开。
+    // 当前位置需要浏览器授权；拒绝或超时则回退到默认办公区域，避免地图空白。
     if (!navigator.geolocation) {
       setStatus("浏览器不支持定位，已显示默认区域。");
-      updateCurrentPosition(defaultPosition, defaultPosition.label);
+      updateMaps(defaultPosition, defaultPosition.label);
       return;
     }
 
@@ -122,11 +115,11 @@
           lng: position.coords.longitude,
           label: "当前位置"
         };
-        updateCurrentPosition(coords, coords.label);
-        setStatus("已定位当前位置，可在 Apple 地图中打开。");
+        updateMaps(coords, coords.label);
+        setStatus("已定位当前位置。");
       },
       function () {
-        updateCurrentPosition(defaultPosition, defaultPosition.label);
+        updateMaps(defaultPosition, defaultPosition.label);
         setStatus("无法读取浏览器定位，已显示默认区域。");
       },
       {
@@ -137,12 +130,38 @@
     );
   }
 
+  function ensureFullMap() {
+    if (!window.L || !fullEl) {
+      setFullStatus("地图资源加载失败。");
+      return;
+    }
+
+    if (!fullMap) {
+      fullMap = window.L.map(fullEl, {
+        center: [currentPosition.lat, currentPosition.lng],
+        zoom: 14
+      });
+      createTileLayer().addTo(fullMap);
+    }
+
+    fullCurrentMarker = setMarker(fullMap, fullCurrentMarker, currentPosition, currentPosition.label);
+
+    if (destinationPosition) {
+      setDestination(destinationPosition, destinationPosition.label);
+    }
+
+    setTimeout(function () {
+      fullMap.invalidateSize();
+      fullMap.setView([currentPosition.lat, currentPosition.lng], 14);
+    }, 80);
+  }
+
   function requestMapFullscreen() {
     if (!modal || !modal.requestFullscreen) {
       return;
     }
     modal.requestFullscreen().catch(function () {
-      setFullStatus("浏览器未允许系统全屏，已使用页面全屏地图入口。");
+      setFullStatus("浏览器未允许系统全屏，已使用页面全屏地图。");
     });
   }
 
@@ -152,9 +171,14 @@
     }
     modal.hidden = false;
     document.body.classList.add("map-modal-open");
-    updateAppleMapLinks();
-    setFullStatus("可检索地点、生成导航，并在 Apple 地图中打开。");
+    ensureFullMap();
+    setFullStatus("等待地点检索或路线规划。");
     requestMapFullscreen();
+    setTimeout(function () {
+      if (fullMap) {
+        fullMap.invalidateSize();
+      }
+    }, 240);
   }
 
   function closeModal() {
@@ -206,16 +230,6 @@
     }
   }
 
-  function setDestination(position, label) {
-    destinationPosition = {
-      lat: position.lat,
-      lng: position.lng,
-      label: label || position.label || "目的地"
-    };
-    routeUrlValue = "";
-    updateAppleMapLinks();
-  }
-
   function renderResults(results) {
     clearResults();
     if (!resultsEl) {
@@ -233,7 +247,7 @@
       button.textContent = result.label;
       button.addEventListener("click", function () {
         setDestination(result, result.label);
-        setFullStatus("已选择目的地，可在 Apple 地图中打开。");
+        setFullStatus("已选择目的地。");
         const routeEnd = routeForm ? routeForm.elements["route-end"] : null;
         if (routeEnd) {
           routeEnd.value = result.label;
@@ -241,6 +255,52 @@
       });
       resultsEl.appendChild(button);
     });
+  }
+
+  function setDestination(position, label) {
+    destinationPosition = {
+      lat: position.lat,
+      lng: position.lng,
+      label: label || position.label || "目的地"
+    };
+
+    if (!fullMap) {
+      return;
+    }
+
+    fullDestinationMarker = setMarker(fullMap, fullDestinationMarker, destinationPosition, destinationPosition.label);
+    const bounds = window.L.latLngBounds(
+      [currentPosition.lat, currentPosition.lng],
+      [destinationPosition.lat, destinationPosition.lng]
+    );
+    fullMap.fitBounds(bounds, { padding: [42, 42], maxZoom: 15 });
+  }
+
+  function routeUrl(start, end) {
+    const coords = `${start.lng},${start.lat};${end.lng},${end.lat}`;
+    const params = new URLSearchParams({
+      overview: "full",
+      geometries: "geojson",
+      steps: "false"
+    });
+    return `https://router.project-osrm.org/route/v1/driving/${coords}?${params.toString()}`;
+  }
+
+  function formatDistance(meters) {
+    if (meters >= 1000) {
+      return `${(meters / 1000).toFixed(1)} km`;
+    }
+    return `${Math.round(meters)} m`;
+  }
+
+  function formatDuration(seconds) {
+    const minutes = Math.round(seconds / 60);
+    if (minutes >= 60) {
+      const hours = Math.floor(minutes / 60);
+      const rest = minutes % 60;
+      return rest ? `${hours} h ${rest} min` : `${hours} h`;
+    }
+    return `${minutes} min`;
   }
 
   async function resolvePoint(value, fallback) {
@@ -253,6 +313,35 @@
       throw new Error("no place");
     }
     return results[0];
+  }
+
+  async function drawRoute(start, end) {
+    const response = await fetch(routeUrl(start, end), {
+      headers: {
+        Accept: "application/json"
+      }
+    });
+    if (!response.ok) {
+      throw new Error("route failed");
+    }
+    const payload = await response.json();
+    if (payload.code !== "Ok" || !payload.routes || payload.routes.length === 0) {
+      throw new Error("no route");
+    }
+
+    const route = payload.routes[0];
+    if (routeLayer) {
+      routeLayer.remove();
+    }
+    routeLayer = window.L.geoJSON(route.geometry, {
+      style: {
+        color: "#24527a",
+        opacity: 0.86,
+        weight: 5
+      }
+    }).addTo(fullMap);
+    fullMap.fitBounds(routeLayer.getBounds(), { padding: [42, 42] });
+    setFullStatus(`路线：${formatDistance(route.distance)}，约 ${formatDuration(route.duration)}。`);
   }
 
   async function handleSearch(event) {
@@ -279,7 +368,7 @@
 
   async function handleRoute(event) {
     event.preventDefault();
-    if (!routeForm) {
+    if (!routeForm || !fullMap) {
       return;
     }
     const startInput = routeForm.elements["route-start"];
@@ -291,21 +380,22 @@
       return;
     }
 
-    setFullStatus("正在生成 Apple 地图导航链接...");
+    setFullStatus("正在规划路线...");
     try {
       const start = await resolvePoint(startValue, currentPosition);
       const end = endValue.trim() ? await resolvePoint(endValue, destinationPosition || currentPosition) : destinationPosition;
       setDestination(end, end.label);
-      routeUrlValue = appleRouteUrl(start, end);
-      updateAppleMapLinks();
-      setFullStatus("已生成导航链接，可点击“打开导航”。");
+      await drawRoute(start, end);
     } catch (error) {
       setFullStatus("路线规划暂时不可用。");
     }
   }
 
   function initMapModule() {
-    updateAppleMapLinks();
+    if (!previewEl) {
+      return;
+    }
+    initPreviewMap();
     requestLocation();
 
     if (expandButton) {
