@@ -264,6 +264,7 @@ h3 {
 }
 
 .clock-card,
+.calendar-card,
 .faculty-card,
 .area-grid article,
 .publications-panel,
@@ -311,6 +312,130 @@ h3 {
   font-size: 18px;
   font-weight: 760;
   letter-spacing: 0.02em;
+}
+
+.calendar-card {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  box-shadow: none;
+}
+
+.calendar-head {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.calendar-solar {
+  display: block;
+  color: var(--navy);
+  font-size: 14px;
+  font-weight: 750;
+  line-height: 1.35;
+}
+
+.calendar-lunar {
+  margin: 3px 0 0;
+  color: var(--blue);
+  font-size: 12px;
+  font-weight: 680;
+  line-height: 1.4;
+}
+
+.calendar-actions {
+  display: flex;
+  flex-shrink: 0;
+  gap: 4px;
+  align-items: center;
+}
+
+.calendar-actions button {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--paper);
+  color: var(--navy);
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.calendar-actions button:hover {
+  border-color: var(--blue);
+  color: var(--blue);
+}
+
+.calendar-month {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 13px;
+  font-weight: 750;
+  line-height: 1.2;
+}
+
+.calendar-weekdays,
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.calendar-weekdays span {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.calendar-day {
+  min-height: 42px;
+  padding: 4px 3px;
+  border: 1px solid var(--line-soft);
+  border-radius: 6px;
+  background: var(--canvas);
+}
+
+.calendar-day.is-outside {
+  opacity: 0.48;
+}
+
+.calendar-day.is-today {
+  border-color: var(--blue);
+  background: var(--accent-soft);
+}
+
+.calendar-solar-day,
+.calendar-lunar-day {
+  display: block;
+  text-align: center;
+  line-height: 1.25;
+}
+
+.calendar-solar-day {
+  color: var(--navy);
+  font-size: 13px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.calendar-lunar-day {
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.calendar-lunar-day.is-festival {
+  color: #a44747;
+  font-weight: 800;
 }
 
 .analog-clock {
@@ -960,6 +1085,7 @@ h3 {
   }
 
   .main-nav {
+    width: 100%;
     gap: 16px;
   }
 

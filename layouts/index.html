@@ -95,6 +95,26 @@
       </div>
     </section>
 
+    <section class="calendar-card" data-calendar aria-label="阳历与农历日历">
+      <div class="calendar-head">
+        <div>
+          <p class="card-label">Calendar</p>
+          <time class="calendar-solar" data-calendar-solar>阳历 ----</time>
+          <p class="calendar-lunar" data-calendar-lunar>农历 ----</p>
+        </div>
+        <div class="calendar-actions" aria-label="日历切换">
+          <button type="button" data-calendar-prev aria-label="上个月">‹</button>
+          <button type="button" data-calendar-today aria-label="回到今天">今</button>
+          <button type="button" data-calendar-next aria-label="下个月">›</button>
+        </div>
+      </div>
+      <p class="calendar-month" data-calendar-month>----</p>
+      <div class="calendar-weekdays" aria-hidden="true">
+        <span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span>
+      </div>
+      <div class="calendar-grid" data-calendar-grid></div>
+    </section>
+
     <section class="faculty-card">
       <p class="card-label">Office</p>
       <p>{{ .Site.Params.office }}</p>
@@ -196,5 +216,6 @@
     <p><span>Institution</span>{{ .Site.Params.institution }}</p>
   </div>
 </section>
+<script src="{{ "js/calendar.js?v=20260613" | relURL }}" defer></script>
 <script src="{{ "js/weather.js?v=20260609-cn-location" | relURL }}" defer></script>
 {{ end }}
